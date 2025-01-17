@@ -62,7 +62,7 @@ jobs:
         REPOSITORY: ${{ secrets.ECR_PRIVATE_REPOSITORY }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t ${{ secrets.ECR_PRIVATE_REPOSITORY }} .
+        docker build -t ${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }} .
         docker tag ${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }} ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}
         docker push ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}
 
