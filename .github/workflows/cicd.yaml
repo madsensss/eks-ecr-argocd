@@ -1,13 +1,9 @@
 name: App with Github Actions, ArgoCD, EKS, ECR
 
 on:
-  # workflow_dispatch
   push:
     branches:
       - main
-    paths-ignore:
-      - 'manifest/**'
-
 jobs:
   ci:
     runs-on: ubuntu-latest
@@ -58,13 +54,11 @@ jobs:
     - name: Build, tag, and push docker image to Amazon ECR Private
       env:
         REGISTRY: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com
-        REGISTRY_ALIAS: ${{ secrets.ECR_PRIVATE_ID }}
         REPOSITORY: ${{ secrets.ECR_PRIVATE_REPOSITORY }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t ${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }} .
-        docker tag ${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }} ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}
-        docker push ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}
+        docker build -t ${{ REGISTRY }}/${{ REPOSITORY }}:${{ IMAGE_TAG }} .
+        docker push ${{ REGISTRY }}/${{ REPOSITORY }}:${{ IMAGE_TAG }}
 
   cd:
     runs-on: ubuntu-latest
@@ -80,17 +74,19 @@ jobs:
 
     - name: Set up Image
       run: |
-        sed -i "s%image: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:[a-zA-Z0-9]*%image: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}%" ./manifest/spring-deployment.yaml
+        sed -i "s%image: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:[a-zA-Z0-9._-]\+%image: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}%" ./manifest/spring-deployment.yaml
 
-    - name: Commit and push changes
+    - name: Commit and push changes if needed
       run: |
         git config --local user.email "madsensss@naver.com"
         git config --local user.name "madsensss"
-        git add .
-        if ! git diff --cached --quiet; then
-          git commit -m "Update application image version for ArgoCD"
-          git push
-        else
+        
+        if git diff --quiet; then
           echo "No changes to commit."
+          exit 0
         fi
+        
+        git add ./manifest/spring-deployment.yaml
+        git commit -m "Update application image version for ArgoCD"
+        git push
 
