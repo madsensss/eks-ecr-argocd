@@ -74,7 +74,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
       with:
-        repository: madsensss/eks-ecr-argocd
+        repository: madsensss/eks-ecr-argocd-manifest
         ref: main
         token: ${{ secrets.TOKEN }}
 
@@ -89,4 +89,3 @@ jobs:
         git add .
         git commit -m "Update application image version for ArgoCD"
         git push
-        fi
