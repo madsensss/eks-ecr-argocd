@@ -1,10 +1,10 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: mysql-init-sql
-data:
-  init.sql: |
-    CREATE DATABASE IF NOT EXISTS app;
-    CREATE USER IF NOT EXISTS 'app'@'%' IDENTIFIED BY 'app12345';
-    GRANT ALL PRIVILEGES ON app.* TO 'app'@'%';
-    FLUSH PRIVILEGES;
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: mysql-init-sql
+# data:
+#   init.sql: |
+#     CREATE DATABASE IF NOT EXISTS app;
+#     CREATE USER IF NOT EXISTS 'app'@'%' IDENTIFIED BY 'app12345';
+#     GRANT ALL PRIVILEGES ON app.* TO 'app'@'%';
+#     FLUSH PRIVILEGES;
