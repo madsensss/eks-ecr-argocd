@@ -80,12 +80,17 @@ jobs:
 
     - name: Set up Image
       run: |
-        sed -i "s%image: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:[A-z0-9]*%image: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}%" ./manifest/spring-deployment.yaml
+        sed -i "s%image: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:[a-zA-Z0-9]*%image: ${{ secrets.ECR_PRIVATE_ID }}.dkr.ecr.${{ secrets.REGION }}.amazonaws.com/${{ secrets.ECR_PRIVATE_REPOSITORY }}:${{ github.sha }}%" ./manifest/spring-deployment.yaml
 
     - name: Commit and push changes
       run: |
         git config --local user.email "madsensss@naver.com"
         git config --local user.name "madsensss"
         git add .
-        git commit -m "Update application image version for ArgoCD"
-        git push
+        if ! git diff --cached --quiet; then
+          git commit -m "Update application image version for ArgoCD"
+          git push
+        else
+          echo "No changes to commit."
+        fi
+
