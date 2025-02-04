@@ -26,7 +26,7 @@ public class StudentController {
     
     @GetMapping("/hello")
     public String sayHello() {
-        return "hello PRIVATE RDS3 !@";
+        return "hello PRIVATE RDS4 !@";
     }
     
     @GetMapping
